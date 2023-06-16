@@ -1,0 +1,68 @@
+﻿@page "/characters"
+@using MarvelApi.Data
+
+<style>
+    .character-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .character-item {
+        width: 200px;
+        text-align: center;
+    }
+
+        .character-item img {
+            width: 100%;
+            max-height: 300px;
+        }
+</style>
+
+<h3>Marvel Characters</h3>
+
+<PageTitle>Marvel Characters</PageTitle>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (errorMessage != null)
+{
+    <p>Error: @errorMessage</p>
+}
+else if (results != null)
+{
+    <ul>
+        @foreach (var result in results)
+        {
+            <div class="character-item">
+                <img src="@result.Thumbnail.Path" alt="@result.Name" />
+                <p>@result.Name</p>
+            </div>
+        }
+    </ul>
+}
+
+@code {
+    private bool isLoading = true;
+    private string errorMessage;
+    private List<MarvelApiResponse> results;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var service = new MarvelAPIService(new HttpClient());
+            results = service.GetCharacterData().Data.Results;
+            
+            isLoading = false;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            isLoading = false;
+        }
+    }
+
+}
